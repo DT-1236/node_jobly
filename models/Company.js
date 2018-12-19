@@ -14,7 +14,7 @@ class Company {
   // First argument is an object which contains the key=value pairs for the search
   static async many(params) {
     try {
-      const query = getMany('companies', { params });
+      const query = getMany('companies', params);
       const dbResponse = await db.query(query.query, query.values);
       return dbResponse.rows.map(row => new Company(row));
     } catch (err) {

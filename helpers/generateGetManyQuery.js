@@ -1,5 +1,5 @@
 // Consider adding a LIMIT functionality later
-function generateGetManyQuery(table, items) {
+function generateGetManyQuery(table, items = {}) {
   // keep track of item indexes
   // store all the columns we want to update and associate with vals
 
@@ -26,11 +26,12 @@ function generateGetManyQuery(table, items) {
 
   // build query
   let cols = columns.join(' AND ');
+  let ifT = Object.keys(items).length ? '' : '--';
   // Build prepared query for each attribute as well as the key value
-  let query = `SELECT * FROM ${table} WHERE ${cols}`;
+  let query = `SELECT * FROM ${table} ${ifT}WHERE ${cols}`;
 
   let values = Object.values(items);
-
+  console.log({ query, values });
   return { query, values };
 }
 
