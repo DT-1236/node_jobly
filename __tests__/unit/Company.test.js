@@ -31,14 +31,14 @@ describe('Test the many static method', async () => {
   });
 });
 
-// describe('Test the get static method', async () => {
-//   it('should generate an array of company objects', async () => {
-//     let result = await Company.many();
+describe('Test the get static method', async () => {
+  it('should generate an array of company objects', async () => {
+    let result = await Company.get('alpha');
 
-//     expect(result.length).toEqual(3);
-//     expect(result.every(i => i instanceof Company)).toBeTruthy();
-//   });
-// });
+    expect(result).toBeInstanceOf(Company);
+    expect(result.name).toEqual('Alpha Bravo');
+  });
+});
 
 afterAll(async () => {
   db.end();

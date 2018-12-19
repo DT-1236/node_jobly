@@ -15,11 +15,11 @@ function generateGetManyQuery(table, items = {}) {
 
   for (let columnName in items) {
     if (columnName === 'name' || columnName === 'handle') {
-      columns.push(`${columnName} ILIKE '%$${idx}%'`);
+      columns.push(`${columnName} ILIKE $${idx}`);
+      items[columnName] = `%${items[columnName]}%`;
     } else {
       const operator = determineOperator(columnName);
-      //   Keep in mind that this will be casting ints as strings
-      columns.push(`${operator.string} ${operator.operator} '$${idx}'`);
+      columns.push(`${operator.string} ${operator.operator} $${idx}`);
     }
     idx += 1;
   }
@@ -31,7 +31,6 @@ function generateGetManyQuery(table, items = {}) {
   let query = `SELECT * FROM ${table} ${ifT}WHERE ${cols}`;
 
   let values = Object.values(items);
-  console.log({ query, values });
   return { query, values };
 }
 

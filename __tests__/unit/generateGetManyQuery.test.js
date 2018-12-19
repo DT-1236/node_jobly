@@ -3,10 +3,8 @@ const generateGetManyQuery = require('../../helpers/generateGetManyQuery');
 describe('partialUpdate()', () => {
   it('should generate a proper select query with just 1 field', () => {
     let result = generateGetManyQuery('users', { handle: 'Elie' });
-    expect(result.query).toEqual(
-      "SELECT * FROM users WHERE handle ILIKE '%$1%'"
-    );
-    expect(result.values).toEqual(['Elie']);
+    expect(result.query).toEqual('SELECT * FROM users WHERE handle ILIKE $1');
+    expect(result.values).toEqual(['%Elie%']);
   });
 
   it('should generate a proper partial update query with 2 fields', () => {
@@ -15,7 +13,7 @@ describe('partialUpdate()', () => {
       lastName: 'Schoppik'
     });
     expect(result.query).toEqual(
-      "SELECT * FROM users WHERE firstName = '$1' AND lastName = '$2'"
+      'SELECT * FROM users WHERE firstName = $1 AND lastName = $2'
     );
     expect(result.values).toEqual(['Elie', 'Schoppik']);
   });
@@ -25,7 +23,7 @@ describe('partialUpdate()', () => {
       min_employees: 20
     });
     expect(result.query).toEqual(
-      "SELECT * FROM users WHERE num_employees > '$1'"
+      'SELECT * FROM users WHERE num_employees > $1'
     );
     expect(result.values).toEqual([20]);
   });
@@ -34,7 +32,7 @@ describe('partialUpdate()', () => {
       max_employees: 20
     });
     expect(result.query).toEqual(
-      "SELECT * FROM users WHERE num_employees < '$1'"
+      'SELECT * FROM users WHERE num_employees < $1'
     );
     expect(result.values).toEqual([20]);
   });

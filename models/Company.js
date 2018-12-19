@@ -24,11 +24,12 @@ class Company {
     }
   }
 
-  static async get(id) {
+  static async get(handle) {
     try {
-      const dbResponse = await db.query(`SELECT * FROM companies WHERE id=$1`, [
-        id
-      ]);
+      const dbResponse = await db.query(
+        `SELECT * FROM companies WHERE handle=$1 OR name=$1`,
+        [handle]
+      );
       return new Company(dbResponse.rows[0]);
     } catch (err) {
       // maybe check that it's actually a company doesn't exist error
