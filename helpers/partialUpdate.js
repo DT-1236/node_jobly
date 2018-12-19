@@ -2,7 +2,7 @@
  * Generate a selective update query based on a request body:
  *
  * - table: where to make the query
- * - items: the list of columns you want to update
+ * - items: an object containing column names and updated values
  * - key: the column that we query by (e.g. username, handle, id)
  * - id: current record ID
  *
@@ -19,26 +19,28 @@ function sqlForPartialUpdate(table, items, key, id) {
   let columns = [];
 
   // filter out keys that start with "_" -- we don't want these in DB
-  for (let key in items) {
-    if (key.startsWith("_")) {
-      delete items[key]
+  for (let columnName in items) {
+    if (columnName.startsWith('_')) {
+      delete items[columnName];
     }
   }
 
-  for (let column in items) {
-    columns.push(`${column}=$${idx}`);
+  for (let columnName in items) {
+    columns.push(`${columnName}=$${idx}`);
     idx += 1;
   }
 
   // build query
-  let cols = columns.join(", ");
+  let cols = columns.join(', ');
+  // Build prepared query for each attribute as well as the key value
   let query = `UPDATE ${table} SET ${cols} WHERE ${key}=$${idx} RETURNING *`;
 
   let values = Object.values(items);
   values.push(id);
 
-  return {query, values};
+  return { query, values };
 }
 
-
 module.exports = sqlForPartialUpdate;
+
+// db.query(result.query, result.values)
