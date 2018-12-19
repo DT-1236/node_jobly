@@ -27,7 +27,7 @@ class Company {
   static async get(handle) {
     try {
       const dbResponse = await db.query(
-        `SELECT * FROM companies WHERE handle=$1 OR name=$1`,
+        `SELECT * FROM companies WHERE handle=$1`,
         [handle]
       );
       return new Company(dbResponse.rows[0]);
