@@ -4,7 +4,7 @@
   "description": "Rithm Lab - Job Posting Service",
   "main": "app.js",
   "scripts": {
-    "test": "jest",
+    "test": "jest -i",
     "start": "node server.js"
   },
   "author": "Nathan Chin, Emman Mascarinas",

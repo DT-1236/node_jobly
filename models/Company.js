@@ -3,6 +3,7 @@ const partialUpdate = require('../helpers/partialUpdate');
 const getMany = require('../helpers/generateGetManyQuery');
 
 class Company {
+  // All methods take an object as its only argument
   constructor({ handle, name, num_employees, description, logo_url }) {
     this.handle = handle;
     this.name = name;
@@ -24,7 +25,7 @@ class Company {
     }
   }
 
-  static async get(handle) {
+  static async get({ handle }) {
     try {
       const dbResponse = await db.query(
         `SELECT * FROM companies WHERE handle=$1`,
@@ -38,7 +39,7 @@ class Company {
     }
   }
 
-  static async create(handle, name) {
+  static async create({ handle, name }) {
     try {
       const dbResponse = await db.query(
         `INSERT INTO companies (handle, name) VALUES ($1, $2) RETURNING *`,
@@ -55,18 +56,19 @@ class Company {
   // First argument is an object which contains the key=value pairs for the search
   //   For this, handle or id will serve as the identifiers. id will be be prioritized
   static async update(params) {
-    const { handle, name, ...items } = params;
-    if (!handle && !name) {
-      throw new Error('Update requires handle/name');
+    try {
+      const { handle, ...items } = params;
+      const query = partialUpdate('companies', items, 'handle', handle);
+      const dbResponse = await db.query(query.query, query.values);
+      return new Company(dbResponse.rows[0]);
+    } catch (err) {
+      // Check if 409 or 404
+      // err.status = INCOMPLETE
+      throw err;
     }
-    const id = handle ? handle : name;
-    const key = handle ? 'handle' : 'name';
-    const query = partialUpdate('companies', items, key, id);
-    const dbResponse = await db.query(query.query, query.values);
-    return new Company(dbResponse.rows[0]);
   }
 
-  static async delete(handle) {
+  static async delete({ handle }) {
     const dbResponse = await db.query(
       `DELETE FROM companies WHERE handle=$1 RETURNING handle, name`,
       [handle]
@@ -76,7 +78,7 @@ class Company {
   }
 
   async delete() {
-    return Company.delete(this.handle);
+    return await Company.delete({ handle: this.handle });
     // const dbResponse = await db.query(
     //   `DELETE FROM companies WHERE handle=$1 RETURNING handle, name`,
     //   [this.handle]
@@ -87,7 +89,7 @@ class Company {
 
   async update(params) {
     params.handle = this.handle;
-    return Company.update(params);
+    return await Company.update(params);
     // const { items } = params;
     // const query = partialUpdate('companies', items, 'handle', this.handle);
     // const dbResponse = await db.query(query.query, query.values);
