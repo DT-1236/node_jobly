@@ -1,7 +1,6 @@
 const router = require('express').Router();
 const Company = require('../models/Company');
 
-const { validate } = require('jsonschema');
 const getAllSchema = require('../schemas/getAllSchema.json');
 const validateSchema = require('../middleware/schemaValidate');
 const newCompanySchema = require('../schemas/newCompanySchema.json');
@@ -9,9 +8,18 @@ const updateCompanySchema = require('../schemas/updateCompanySchema.json');
 
 router.get('/', async function getCompanies(request, response, next) {
   try {
-    validateSchema(request.query, getAllSchema);
-
-    const companies = await Company.many(request.query);
+    const form = request.query;
+    if (
+      form.hasOwnProperty('max_employees') &&
+      form.hasOwnProperty('min_employees') &&
+      Number(form.max_employees) < Number(form.min_employees)
+    ) {
+      let error = new Error('max_employees must be greater than min_employees');
+      error.status = 400;
+      throw error;
+    }
+    validateSchema(form, getAllSchema);
+    const companies = await Company.many(form);
     return response.json({ companies });
   } catch (error) {
     return next(error);

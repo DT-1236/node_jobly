@@ -23,7 +23,7 @@ describe('partialUpdate()', () => {
       min_employees: 20
     });
     expect(result.query).toEqual(
-      'SELECT * FROM users WHERE num_employees > $1'
+      'SELECT * FROM users WHERE num_employees >= $1'
     );
     expect(result.values).toEqual([20]);
   });
@@ -32,7 +32,7 @@ describe('partialUpdate()', () => {
       max_employees: 20
     });
     expect(result.query).toEqual(
-      'SELECT * FROM users WHERE num_employees < $1'
+      'SELECT * FROM users WHERE num_employees <= $1'
     );
     expect(result.values).toEqual([20]);
   });

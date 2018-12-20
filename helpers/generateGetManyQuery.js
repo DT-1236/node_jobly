@@ -37,9 +37,9 @@ function generateGetManyQuery(table, items = {}) {
 // Consider an object that maps more strings than just num_employees
 function determineOperator(string) {
   if (string.startsWith('max')) {
-    return { operator: '<', string: 'num_employees' };
+    return { operator: '<=', string: 'num_employees' };
   } else if (string.startsWith('min')) {
-    return { operator: '>', string: 'num_employees' };
+    return { operator: '>=', string: 'num_employees' };
   } else {
     return { operator: '=', string };
   }
