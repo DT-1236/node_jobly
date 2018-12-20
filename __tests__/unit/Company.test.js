@@ -130,9 +130,9 @@ describe('Test the update instance method', async () => {
 describe('Test the delete instance method', async () => {
   it('should delete an existing company', async () => {
     const alpha = await Company.get({ handle: 'alpha' });
-    expect(await alpha.delete()).toEqual({
-      message: `${alpha.name} (${alpha.handle}) deleted`
-    });
+    expect(await alpha.delete()).toEqual(
+      `${alpha.name} (${alpha.handle}) deleted`
+    );
   });
   await Company.create({ handle: 'alpha', name: 'Alpha Bravo' });
 });
@@ -140,9 +140,9 @@ describe('Test the delete instance method', async () => {
 describe('Test the delete class method', async () => {
   it('should delete an existing company', async () => {
     const bravo = await Company.get({ handle: 'bravo' });
-    expect(await Company.delete({ handle: bravo.handle })).toEqual({
-      message: `${bravo.name} (${bravo.handle}) deleted`
-    });
+    expect(await Company.delete({ handle: bravo.handle })).toEqual(
+      `${bravo.name} (${bravo.handle}) deleted`
+    );
   });
   await Company.create({ handle: 'bravo', name: 'Bravo Charlie' });
 });

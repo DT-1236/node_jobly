@@ -48,8 +48,10 @@ class Company {
       `DELETE FROM companies WHERE handle=$1 RETURNING handle, name`,
       [handle]
     );
+    ifEmpty404(dbResponse);
+
     const info = dbResponse.rows[0];
-    return { message: `${info.name} (${info.handle}) deleted` };
+    return `${info.name} (${info.handle}) deleted`;
   }
 
   async delete() {

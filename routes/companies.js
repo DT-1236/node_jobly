@@ -46,8 +46,13 @@ router.get('/:handle', async function getCompany(request, response, next) {
   }
 });
 
-router.patch('/:handle', async function updateCompany(request, response, next) {
+router.put('/:handle', updateCompany);
+router.patch('/:handle', updateCompany);
+async function updateCompany(request, response, next) {
   try {
+    if (Object.keys(request.body).length === 0) {
+      throw new Error(`Empty Update Request`);
+    }
     validateSchema(request.body, updateCompanySchema);
     request.body.handle = request.params.handle;
     const company = await Company.update(request.body);
@@ -55,12 +60,12 @@ router.patch('/:handle', async function updateCompany(request, response, next) {
   } catch (error) {
     return next(error);
   }
-});
+}
 
 router.delete('/:handle', async function delCompany(request, response, next) {
   try {
-    const company = await Company.delete({ handle: request.params.handle });
-    return response.json({ company });
+    const message = await Company.delete({ handle: request.params.handle });
+    return response.json({ message });
   } catch (error) {
     return next(error);
   }

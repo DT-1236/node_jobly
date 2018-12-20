@@ -2,7 +2,10 @@
 
 const express = require('express');
 const APIError = require('./helpers/APIErrors');
-const { checkPGDuplicateValue } = require('./helpers/errorHandlers');
+const {
+  checkPGDuplicateValue,
+  finalizeEmptyFormError
+} = require('./helpers/errorHandlers');
 const app = express();
 app.use(express.json());
 
@@ -27,9 +30,13 @@ app.use(function(req, res, next) {
 // global error handler
 app.use(function(err, req, res, next) {
   checkPGDuplicateValue(err);
+  finalizeEmptyFormError(err);
   // all errors that get to here get coerced into API Errors
   if (!(err instanceof APIError)) {
     err = new APIError(err.message, err.status);
+  }
+  if (err.status === 500) {
+    console.error(`Checking error in handler\n\n>>>>>`, err);
   }
   return res.status(err.status).json(err);
 });

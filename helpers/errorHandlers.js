@@ -12,4 +12,10 @@ function checkPGDuplicateValue(error) {
   error.message = `A previous record already has one of those values`;
 }
 
-module.exports = { checkPGDuplicateValue };
+function finalizeEmptyFormError(error) {
+  if (error.message === `Empty Update Request`) {
+    error.status = 400;
+  }
+}
+
+module.exports = { checkPGDuplicateValue, finalizeEmptyFormError };

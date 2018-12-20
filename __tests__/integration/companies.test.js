@@ -121,11 +121,42 @@ describe('GET to /companies/:handle', async () => {
   });
 });
 
-// describe('GET to /companies', async () => {
-//   it('', async () => {
+describe('PATCH/PUT to /companies/:handle', async () => {
+  it('Updates an existing company with new information', async () => {
+    const response = await testApp
+      .patch('/companies/alpha')
+      .send({ name: 'cake', num_employees: 20 });
+    expect(response.body.company).toEqual({
+      handle: 'alpha',
+      name: 'cake',
+      num_employees: 20,
+      description: null,
+      logo_url: null
+    });
+    await testApp
+      .patch('/companies/alpha')
+      .send({ name: 'Alpha Bravo', num_employees: 1 });
+  });
 
-//   });
-// });
+  it('should return a 404 for a missing handle', async () => {
+    const response = await testApp
+      .patch('/companies/garbage_handle')
+      .send({ name: 'cake', num_employees: 20 });
+    expect(response.status).toEqual(404);
+  });
+});
+
+describe('DELETE to /companies/:handle', async () => {
+  it('should delete a company', async () => {
+    let response = await testApp.delete('/companies/alpha');
+    expect(response.body).toEqual({ message: `Alpha Bravo (alpha) deleted` });
+  });
+
+  it('should return a 404 for a missing handle', async () => {
+    const response = await testApp.delete('/companies/garbage_handle');
+    expect(response.status).toEqual(404);
+  });
+});
 
 afterAll(async () => {
   await db.query(`DELETE FROM companies`);
