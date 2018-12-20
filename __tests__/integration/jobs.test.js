@@ -2,7 +2,6 @@ process.env.NODE_ENV = 'test';
 
 const app = require('../../app');
 const testApp = require('supertest')(app);
-const Job = require('../../models/Job');
 const db = require('../../db');
 
 beforeAll(async () => {
@@ -83,57 +82,49 @@ describe('POST to /jobs', async () => {
   });
 });
 
-// describe('GET to /jobs/:handle', async () => {
-//   it('should return a JSON for a single job', async () => {
-//     const response = await testApp.get('/jobs/alpha');
-//     expect(response.status).toEqual(200);
-//     expect(response.body).toHaveProperty('job');
-//     expect(response.body.job).toHaveProperty('name', 'Alpha Bravo');
-//     expect(response.body.job).toHaveProperty('jobs');
-//   });
+describe('GET to /jobs/:handle', async () => {
+  it('should return a JSON for a single job', async () => {
+    const response = await testApp.get(`/jobs/${globeJobRow.id}`);
+    expect(response.status).toEqual(200);
+    expect(response.body).toHaveProperty('job');
+    expect(response.body.job).toHaveProperty('title', globeJobRow.title);
+  });
 
-//   it('should return a 404 for a missing handle', async () => {
-//     const response = await testApp.get('/jobs/garbage_handle');
-//     expect(response.status).toEqual(404);
-//   });
-// });
+  it('should return a 404 for a missing handle', async () => {
+    const response = await testApp.get('/jobs/-1');
+    expect(response.status).toEqual(404);
+  });
+});
 
-// describe('PATCH/PUT to /jobs/:handle', async () => {
-//   it('Updates an existing job with new information', async () => {
-//     const response = await testApp
-//       .patch('/jobs/alpha')
-//       .send({ name: 'cake', num_employees: 20 });
-//     expect(response.body.job).toEqual({
-//       handle: 'alpha',
-//       name: 'cake',
-//       num_employees: 20,
-//       description: null,
-//       logo_url: null
-//     });
-//     await testApp
-//       .patch('/jobs/alpha')
-//       .send({ name: 'Alpha Bravo', num_employees: 1 });
-//   });
+describe('PATCH/PUT to /jobs/:handle', async () => {
+  it('Updates an existing job with new information', async () => {
+    const response = await testApp
+      .patch(`/jobs/${globeJobRow.id}`)
+      .send({ title: 'cake', salary: 20 });
+    expect(response.body).toHaveProperty('job');
+    expect(response.body.job.salary).toBe(20);
+    expect(response.body.job.title).toBe('cake');
+  });
 
-//   it('should return a 404 for a missing handle', async () => {
-//     const response = await testApp
-//       .patch('/jobs/garbage_handle')
-//       .send({ name: 'cake', num_employees: 20 });
-//     expect(response.status).toEqual(404);
-//   });
-// });
+  it('should return a 404 for a missing handle', async () => {
+    const response = await testApp
+      .patch('/jobs/-1')
+      .send({ title: 'cake', salary: 20 });
+    expect(response.status).toEqual(404);
+  });
+});
 
-// describe('DELETE to /jobs/:handle', async () => {
-//   it('should delete a job', async () => {
-//     let response = await testApp.delete('/jobs/alpha');
-//     expect(response.body).toEqual({ message: `Alpha Bravo (alpha) deleted` });
-//   });
+describe('DELETE to /jobs/:handle', async () => {
+  it('should delete a job', async () => {
+    let response = await testApp.delete(`/jobs/${globeJobRow.id}`);
+    expect(response.body).toEqual({ message: `${globeJobRow.title} deleted` });
+  });
 
-//   it('should return a 404 for a missing handle', async () => {
-//     const response = await testApp.delete('/jobs/garbage_handle');
-//     expect(response.status).toEqual(404);
-//   });
-// });
+  it('should return a 404 for a missing handle', async () => {
+    const response = await testApp.delete('/jobs/-1');
+    expect(response.status).toEqual(404);
+  });
+});
 
 afterAll(async () => {
   await db.query(`DELETE FROM jobs`);

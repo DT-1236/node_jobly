@@ -3,7 +3,7 @@ process.env.NODE_ENV = 'test';
 const Company = require('../../models/Company');
 const db = require('../../db');
 
-beforeAll(async () => {
+beforeEach(async () => {
   await db.query(`DELETE FROM jobs`);
   await db.query(`DELETE FROM companies`);
   await db.query(
@@ -148,8 +148,12 @@ describe('Test the delete class method', async () => {
   await Company.create({ handle: 'bravo', name: 'Bravo Charlie' });
 });
 
-afterAll(async () => {
+afterEach(async () => {
   await db.query(`DELETE FROM jobs`);
   await db.query(`DELETE FROM companies`);
+});
+afterAll(async () => {
+  // await db.query(`DELETE FROM jobs`);
+  // await db.query(`DELETE FROM companies`);
   db.end();
 });
