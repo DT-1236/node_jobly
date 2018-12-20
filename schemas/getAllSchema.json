@@ -1,0 +1,34 @@
+{
+  "definitions": {},
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://example.com/root.json",
+  "type": "object",
+  "title": "The Root Schema",
+  "required": [],
+  "properties": {
+    "search": {
+      "$id": "#/properties/search",
+      "type": "string",
+      "title": "The Search Schema",
+      "default": "",
+      "examples": ["alpha"],
+      "pattern": "^(.*)$"
+    },
+    "min_employees": {
+      "$id": "#/properties/min_employees",
+      "type": "integer",
+      "title": "The Min_employees Schema",
+      "default": 0,
+      "minimum": 0,
+      "examples": [1]
+    },
+    "max_employees": {
+      "$id": "#/properties/max_employees",
+      "type": "integer",
+      "title": "The Max_employees Schema",
+      "default": 100000000,
+      "minimum": 0,
+      "examples": [100]
+    }
+  }
+}
