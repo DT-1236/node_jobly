@@ -3,15 +3,8 @@ const { validate } = require('jsonschema');
 function validateSchema(form, schema) {
   // Apparently integer values in query strings aren't coerced into int
   // So max_employees is going in as '1' instead of 1
-  if (form.hasOwnProperty('max_employees')) {
-    form['max_employees'] = Number(form['max_employees']);
-  }
-  if (form.hasOwnProperty('min_employees')) {
-    form['min_employees'] = Number(form['min_employees']);
-  }
-  if (form.hasOwnProperty('num_employees')) {
-    form['num_employees'] = Number(form['num_employees']);
-  }
+  parseValuesIntoFloat(form);
+
   const result = validate(form, schema);
   if (!result.valid) {
     let message = result.errors.map(error => error.stack);
@@ -20,6 +13,14 @@ function validateSchema(form, schema) {
     throw error;
   }
   return result;
+}
+
+function parseValuesIntoFloat(form) {
+  for (let key in form) {
+    if (Number(form[key]) || Number(form[key]) === 0) {
+      form[key] = Number(form[key]);
+    }
+  }
 }
 
 module.exports = validateSchema;
