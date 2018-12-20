@@ -1,6 +1,8 @@
 /** Express app for jobly. */
 
 const express = require('express');
+const APIError = require('./helpers/APIErrors');
+const { checkPGDuplicateValue } = require('./helpers/errorHandlers');
 const app = express();
 app.use(express.json());
 
@@ -22,14 +24,14 @@ app.use(function(req, res, next) {
   return next(err);
 });
 
-/** general error handler */
-
+// global error handler
 app.use(function(err, req, res, next) {
-  res.status(err.status || 500);
-
-  return res.json({
-    error: { status: err.status, message: err.message }
-  });
+  checkPGDuplicateValue(err);
+  // all errors that get to here get coerced into API Errors
+  if (!(err instanceof APIError)) {
+    err = new APIError(err.message, err.status);
+  }
+  return res.status(err.status).json(err);
 });
 
 module.exports = app;

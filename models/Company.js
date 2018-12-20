@@ -3,7 +3,7 @@ const partialUpdate = require('../helpers/partialUpdate');
 const getMany = require('../helpers/generateGetManyQuery');
 
 class Company {
-  // All methods take an object as its only argument
+  // All methods take an object as their only argument
   constructor({ handle, name, num_employees, description, logo_url }) {
     this.handle = handle;
     this.name = name;
@@ -12,60 +12,35 @@ class Company {
     this.logo_url = logo_url;
   }
 
-  // First argument is an object which contains the key=value pairs for the search
   static async many(params) {
-    try {
-      const query = getMany('companies', params);
-      const dbResponse = await db.query(query.query, query.values);
-      return dbResponse.rows.map(row => new Company(row));
-    } catch (err) {
-      // maybe check that it's actually a company doesn't exist error
-      err.status = 404;
-      throw err;
-    }
+    const query = getMany('companies', params);
+    const dbResponse = await db.query(query.query, query.values);
+    return dbResponse.rows.map(row => new Company(row));
   }
 
   static async get({ handle }) {
-    try {
-      const dbResponse = await db.query(
-        `SELECT * FROM companies WHERE handle=$1`,
-        [handle]
-      );
-      return new Company(dbResponse.rows[0]);
-    } catch (err) {
-      // maybe check that it's actually a company doesn't exist error
-      err.status = 404;
-      throw err;
-    }
+    const dbResponse = await db.query(
+      `SELECT * FROM companies WHERE handle=$1`,
+      [handle]
+    );
+    ifEmpty404(dbResponse);
+    return new Company(dbResponse.rows[0]);
   }
 
   static async create({ handle, name }) {
-    try {
-      const dbResponse = await db.query(
-        `INSERT INTO companies (handle, name) VALUES ($1, $2) RETURNING *`,
-        [handle, name]
-      );
-      return new Company(dbResponse.rows[0]);
-    } catch (err) {
-      //   Check that it's actually a pkey error later
-      err.status = 409; //Conflict
-      throw err;
-    }
+    const dbResponse = await db.query(
+      `INSERT INTO companies (handle, name) VALUES ($1, $2) RETURNING *`,
+      [handle, name]
+    );
+    return new Company(dbResponse.rows[0]);
   }
 
-  // First argument is an object which contains the key=value pairs for the search
-  //   For this, handle or id will serve as the identifiers. id will be be prioritized
   static async update(params) {
-    try {
-      const { handle, ...items } = params;
-      const query = partialUpdate('companies', items, 'handle', handle);
-      const dbResponse = await db.query(query.query, query.values);
-      return new Company(dbResponse.rows[0]);
-    } catch (err) {
-      // Check if 409 or 404
-      // err.status = INCOMPLETE
-      throw err;
-    }
+    const { handle, ...items } = params;
+    const query = partialUpdate('companies', items, 'handle', handle);
+    const dbResponse = await db.query(query.query, query.values);
+    ifEmpty404(dbResponse);
+    return new Company(dbResponse.rows[0]);
   }
 
   static async delete({ handle }) {
@@ -94,6 +69,15 @@ class Company {
     // const query = partialUpdate('companies', items, 'handle', this.handle);
     // const dbResponse = await db.query(query.query, query.values);
     // return new Company(dbResponse.rows[0]);
+  }
+}
+
+function ifEmpty404(dbResponse) {
+  if (dbResponse.rows.length === 0) {
+    const error = new Error();
+    error.message = 'No matching company found';
+    error.status = 404;
+    throw error;
   }
 }
 

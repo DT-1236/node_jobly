@@ -55,20 +55,29 @@ describe('Test the get static method', async () => {
   });
 
   it('should return a 404 error if the handle does not exist ', async () => {
-    await expect(
-      Company.get({ handle: 'garbage_handle' })
-    ).rejects.toBeInstanceOf(TypeError);
-    await expect(
-      Company.get({ handle: 'garbage_handle' })
-    ).rejects.toHaveProperty('status', 404);
+    const error = await Company.get({ handle: 'garbage_handle' }).catch(e => e);
+    expect(error).toBeInstanceOf(Error);
+    expect(error).toHaveProperty('status', 404);
+    // await expect(
+    //   Company.get({ handle: 'garbage_handle' })
+    // ).rejects.toBeInstanceOf(Error);
+    // await expect(
+    //   Company.get({ handle: 'garbage_handle' })
+    // ).rejects.toHaveProperty('status', 404);
   });
 });
 
 describe('Test the create static method', async () => {
   it('should generate a new Company object and insert into the DB', async () => {
-    await expect(Company.get({ handle: 'tcompany' })).rejects.toBeInstanceOf(
-      TypeError
-    );
+    const error = await Company.get({ handle: 'tcompany' }).catch(e => e);
+    expect(error).toBeInstanceOf(Error);
+    expect(error).toHaveProperty('message');
+    // await expect(Company.get({ handle: 'tcompany' })).rejects.toBeInstanceOf(
+    //   Error
+    // );
+    // await expect(Company.get({ handle: 'tcompany' })).rejects.toHaveProperty(
+    //   'message'
+    // );
     const testCompany = await Company.create({
       handle: 'tcompany',
       name: 'Test Company'
