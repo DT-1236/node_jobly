@@ -113,6 +113,7 @@ describe('GET to /companies/:handle', async () => {
     expect(response.status).toEqual(200);
     expect(response.body).toHaveProperty('company');
     expect(response.body.company).toHaveProperty('name', 'Alpha Bravo');
+    expect(response.body.company).toHaveProperty('jobs');
   });
 
   it('should return a 404 for a missing handle', async () => {

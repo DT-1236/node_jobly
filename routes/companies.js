@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const Company = require('../models/Company');
 
-const getAllSchema = require('../schemas/getAllSchema.json');
+const getAllSchema = require('../schemas/getAllCompaniesSchema.json');
 const validateSchema = require('../middleware/schemaValidate');
 const newCompanySchema = require('../schemas/newCompanySchema.json');
 const updateCompanySchema = require('../schemas/updateCompanySchema.json');

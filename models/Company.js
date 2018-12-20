@@ -1,20 +1,23 @@
 const db = require('../db');
 const partialUpdate = require('../helpers/partialUpdate');
 const getMany = require('../helpers/generateGetManyQuery');
+const Job = require('./Job');
 
 class Company {
   // All methods take an object as their only argument
-  constructor({ handle, name, num_employees, description, logo_url }) {
+
+  constructor({ handle, name, num_employees, description, logo_url, jobs }) {
     this.handle = handle;
     this.name = name;
     this.num_employees = num_employees;
     this.description = description;
     this.logo_url = logo_url;
+    this.jobs = jobs;
   }
 
   static async many(params) {
-    const query = getMany('companies', params);
-    const dbResponse = await db.query(query.query, query.values);
+    const { query, values } = getMany('companies', params);
+    const dbResponse = await db.query(query, values);
     return dbResponse.rows.map(row => new Company(row));
   }
 
@@ -24,7 +27,10 @@ class Company {
       [handle]
     );
     ifEmpty404(dbResponse);
-    return new Company(dbResponse.rows[0]);
+    const response = dbResponse.rows[0];
+    const jobs = await Job.getByCompany({ handle });
+    response.jobs = jobs;
+    return new Company(response);
   }
 
   static async create({ handle, name }) {
@@ -37,8 +43,13 @@ class Company {
 
   static async update(params) {
     const { handle, ...items } = params;
-    const query = partialUpdate('companies', items, 'handle', handle);
-    const dbResponse = await db.query(query.query, query.values);
+    const { query, values } = partialUpdate(
+      'companies',
+      items,
+      'handle',
+      handle
+    );
+    const dbResponse = await db.query(query, values);
     ifEmpty404(dbResponse);
     return new Company(dbResponse.rows[0]);
   }
@@ -56,21 +67,11 @@ class Company {
 
   async delete() {
     return await Company.delete({ handle: this.handle });
-    // const dbResponse = await db.query(
-    //   `DELETE FROM companies WHERE handle=$1 RETURNING handle, name`,
-    //   [this.handle]
-    // );
-    // const info = dbResponse.rows[0];
-    // return { message: `${info.name} (${info.handle}) deleted` };
   }
 
   async update(params) {
     params.handle = this.handle;
     return await Company.update(params);
-    // const { items } = params;
-    // const query = partialUpdate('companies', items, 'handle', this.handle);
-    // const dbResponse = await db.query(query.query, query.values);
-    // return new Company(dbResponse.rows[0]);
   }
 }
 

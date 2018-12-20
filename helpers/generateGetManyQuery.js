@@ -1,4 +1,15 @@
 // Consider adding a LIMIT functionality later
+
+const ilikeColumns = {
+  companies: new Set(['name', 'handle']),
+  jobs: new Set(['title'])
+};
+
+const queryToTableMappings = {
+  companies: { max_employees: 'num_employees', min_employees: 'num_employees' },
+  jobs: { min_salary: 'salary', min_equity: 'equity' }
+};
+
 function generateGetManyQuery(table, items = {}) {
   // keep track of item indexes
   // store all the columns we want to update and associate with vals
@@ -14,12 +25,12 @@ function generateGetManyQuery(table, items = {}) {
   }
 
   for (let columnName in items) {
-    if (columnName === 'name' || columnName === 'handle') {
+    if (ilikeColumns[table].has(columnName)) {
       columns.push(`${columnName} ILIKE $${idx}`);
       items[columnName] = `%${items[columnName]}%`;
     } else {
-      const operator = determineOperator(columnName);
-      columns.push(`${operator.string} ${operator.operator} $${idx}`);
+      const { operator, string } = determineOperator(columnName, table);
+      columns.push(`${string} ${operator} $${idx}`);
     }
     idx += 1;
   }
@@ -35,14 +46,18 @@ function generateGetManyQuery(table, items = {}) {
 }
 
 // Consider an object that maps more strings than just num_employees
-function determineOperator(string) {
+function determineOperator(string, table) {
+  let operator;
   if (string.startsWith('max')) {
-    return { operator: '<=', string: 'num_employees' };
+    operator = '<=';
+    string = queryToTableMappings[table][string];
   } else if (string.startsWith('min')) {
-    return { operator: '>=', string: 'num_employees' };
+    operator = '>=';
+    string = queryToTableMappings[table][string];
   } else {
-    return { operator: '=', string };
+    operator = '=';
   }
+  return { operator, string };
 }
 
 module.exports = generateGetManyQuery;

@@ -4,6 +4,7 @@ const Company = require('../../models/Company');
 const db = require('../../db');
 
 beforeAll(async () => {
+  await db.query(`DELETE FROM jobs`);
   await db.query(`DELETE FROM companies`);
   await db.query(
     `
@@ -148,6 +149,7 @@ describe('Test the delete class method', async () => {
 });
 
 afterAll(async () => {
+  await db.query(`DELETE FROM jobs`);
   await db.query(`DELETE FROM companies`);
   db.end();
 });
