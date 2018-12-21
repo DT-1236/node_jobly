@@ -3,8 +3,13 @@ process.env.NODE_ENV = 'test';
 const app = require('../../app');
 const testApp = require('supertest')(app);
 const db = require('../../db');
+const jwt = require('jsonwebtoken');
+const { SECRET } = require('../../config');
+let token, adminToken;
 
 beforeAll(async () => {
+  token = await jwt.sign({ username: 'test1', is_admin: false }, SECRET);
+  adminToken = await jwt.sign({ username: 'test1', is_admin: true }, SECRET);
   await db.query(`DELETE FROM jobs`);
   await db.query(`DELETE FROM companies`);
   await db.query(
@@ -35,7 +40,7 @@ beforeEach(async () => {
 
 describe('GET to /jobs', async () => {
   it('should return a json with a key of jobs and value of all the jobs if no input', async () => {
-    const response = await testApp.get('/jobs');
+    const response = await testApp.get('/jobs').send({ token });
     expect(response.status).toEqual(200);
     expect(response.body).toHaveProperty('jobs');
     expect(response.body.jobs).toHaveLength(3);
@@ -48,7 +53,7 @@ describe('GET to /jobs', async () => {
   it('should filter appropriately by multiple parameters', async () => {
     const response = await testApp
       .get('/jobs')
-      .query({ min_salary: 500, title: 'Test' });
+      .query({ min_salary: 500, title: 'Test', token });
     expect(response.status).toEqual(200);
     expect(response.body).toHaveProperty('jobs');
     expect(response.body.jobs).toHaveLength(1);
@@ -60,7 +65,7 @@ describe('GET to /jobs', async () => {
   it('returned jobs value should be an empty list if there are no matches', async () => {
     const response = await testApp
       .get('/jobs')
-      .query({ title: 'Garbage TiTlE' });
+      .query({ title: 'Garbage TiTlE', token });
     expect(response.status).toEqual(200);
     expect(response.body).toHaveProperty('jobs');
     expect(response.body.jobs).toHaveLength(0);
@@ -73,7 +78,8 @@ describe('POST to /jobs', async () => {
       title: 'Test Maker',
       salary: 50000,
       equity: 0.12,
-      company_handle: 'bravo'
+      company_handle: 'bravo',
+      token: adminToken
     });
     expect(response.status).toEqual(200);
     expect(response.body).toHaveProperty('job');
@@ -84,14 +90,16 @@ describe('POST to /jobs', async () => {
 
 describe('GET to /jobs/:handle', async () => {
   it('should return a JSON for a single job', async () => {
-    const response = await testApp.get(`/jobs/${globeJobRow.id}`);
+    const response = await testApp
+      .get(`/jobs/${globeJobRow.id}`)
+      .send({ token });
     expect(response.status).toEqual(200);
     expect(response.body).toHaveProperty('job');
     expect(response.body.job).toHaveProperty('title', globeJobRow.title);
   });
 
   it('should return a 404 for a missing handle', async () => {
-    const response = await testApp.get('/jobs/-1');
+    const response = await testApp.get('/jobs/-1').send({ token });
     expect(response.status).toEqual(404);
   });
 });
@@ -100,7 +108,7 @@ describe('PATCH/PUT to /jobs/:handle', async () => {
   it('Updates an existing job with new information', async () => {
     const response = await testApp
       .patch(`/jobs/${globeJobRow.id}`)
-      .send({ title: 'cake', salary: 20 });
+      .send({ title: 'cake', salary: 20, token: adminToken });
     expect(response.body).toHaveProperty('job');
     expect(response.body.job.salary).toBe(20);
     expect(response.body.job.title).toBe('cake');
@@ -109,19 +117,23 @@ describe('PATCH/PUT to /jobs/:handle', async () => {
   it('should return a 404 for a missing handle', async () => {
     const response = await testApp
       .patch('/jobs/-1')
-      .send({ title: 'cake', salary: 20 });
+      .send({ title: 'cake', salary: 20, token: adminToken });
     expect(response.status).toEqual(404);
   });
 });
 
 describe('DELETE to /jobs/:handle', async () => {
   it('should delete a job', async () => {
-    let response = await testApp.delete(`/jobs/${globeJobRow.id}`);
+    let response = await testApp
+      .delete(`/jobs/${globeJobRow.id}`)
+      .send({ token: adminToken });
     expect(response.body).toEqual({ message: `${globeJobRow.title} deleted` });
   });
 
   it('should return a 404 for a missing handle', async () => {
-    const response = await testApp.delete('/jobs/-1');
+    const response = await testApp
+      .delete('/jobs/-1')
+      .send({ token: adminToken });
     expect(response.status).toEqual(404);
   });
 });

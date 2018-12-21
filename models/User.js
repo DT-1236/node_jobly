@@ -29,6 +29,7 @@ class User {
   }
 
   static async many(params) {
+    if (params) delete params.token;
     const { query, values } = getMany('users', params);
     const dbResponse = await db.query(query, values);
     return dbResponse.rows.map(row => new User(row));
@@ -51,6 +52,7 @@ class User {
   }
 
   static async create(params) {
+    // Note: any fool can send a post request to add/update a user as admin
     const {
       username,
       password,
@@ -76,7 +78,15 @@ class User {
     return new User(dbResponse.rows[0]);
   }
 
+  static async login({ username, password }) {
+    // Note: any fool can send a post request to add/update a user as admin
+    const user = await User.get({ username });
+    return (await bcrypt.compare(password, user.password)) ? user : false;
+  }
+
   static async update(params) {
+    if (params) delete params.token;
+    // Note: any fool can send a post request to add/update a user as admin
     const { query, values } = partialUpdate(
       'users',
       params,

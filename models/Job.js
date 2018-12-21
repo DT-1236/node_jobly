@@ -13,6 +13,7 @@ class Job {
   }
 
   static async many(params) {
+    if (params) delete params.token;
     const { query, values } = getMany('jobs', params);
     const dbResponse = await db.query(query, values);
     return dbResponse.rows.map(row => new Job(row));
@@ -42,6 +43,7 @@ class Job {
   }
 
   static async update(params) {
+    if (params) delete params.token;
     const { id, ...items } = params;
     const query = partialUpdate('jobs', items, 'id', id);
     const dbResponse = await db.query(query.query, query.values);

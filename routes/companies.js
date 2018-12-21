@@ -1,12 +1,17 @@
 const router = require('express').Router();
 const Company = require('../models/Company');
+const { checkIfLoggedIn, checkIfAdmin } = require('../middleware/auth');
 
 const getAllSchema = require('../schemas/getAllCompaniesSchema.json');
 const validateSchema = require('../middleware/schemaValidate');
 const newCompanySchema = require('../schemas/newCompanySchema.json');
 const updateCompanySchema = require('../schemas/updateCompanySchema.json');
 
-router.get('/', async function getCompanies(request, response, next) {
+router.get('/', checkIfLoggedIn, async function getCompanies(
+  request,
+  response,
+  next
+) {
   try {
     const form = request.query;
     if (
@@ -26,7 +31,11 @@ router.get('/', async function getCompanies(request, response, next) {
   }
 });
 
-router.post('/', async function createCompany(request, response, next) {
+router.post('/', checkIfAdmin, async function createCompany(
+  request,
+  response,
+  next
+) {
   try {
     validateSchema(request.body, newCompanySchema);
 
@@ -37,7 +46,11 @@ router.post('/', async function createCompany(request, response, next) {
   }
 });
 
-router.get('/:handle', async function getCompany(request, response, next) {
+router.get('/:handle', checkIfLoggedIn, async function getCompany(
+  request,
+  response,
+  next
+) {
   try {
     const company = await Company.get({ handle: request.params.handle });
     return response.json({ company });
@@ -46,8 +59,8 @@ router.get('/:handle', async function getCompany(request, response, next) {
   }
 });
 
-router.put('/:handle', updateCompany);
-router.patch('/:handle', updateCompany);
+router.put('/:handle', checkIfAdmin, updateCompany);
+router.patch('/:handle', checkIfAdmin, updateCompany);
 async function updateCompany(request, response, next) {
   try {
     if (Object.keys(request.body).length === 0) {
@@ -62,7 +75,11 @@ async function updateCompany(request, response, next) {
   }
 }
 
-router.delete('/:handle', async function delCompany(request, response, next) {
+router.delete('/:handle', checkIfAdmin, async function delCompany(
+  request,
+  response,
+  next
+) {
   try {
     const message = await Company.delete({ handle: request.params.handle });
     return response.json({ message });

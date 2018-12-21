@@ -1,12 +1,18 @@
 const router = require('express').Router();
 const Job = require('../models/Job');
 
+const { checkIfLoggedIn, checkIfAdmin } = require('../middleware/auth');
+
 const getAllSchema = require('../schemas/getAllJobsSchema.json');
 const validateSchema = require('../middleware/schemaValidate');
 const newJobSchema = require('../schemas/newJobSchema.json');
 const updateJobSchema = require('../schemas/updateJobSchema.json');
 
-router.get('/', async function getjobs(request, response, next) {
+router.get('/', checkIfLoggedIn, async function getjobs(
+  request,
+  response,
+  next
+) {
   try {
     const queryString = request.query;
     validateSchema(queryString, getAllSchema);
@@ -17,7 +23,11 @@ router.get('/', async function getjobs(request, response, next) {
   }
 });
 
-router.post('/', async function createJob(request, response, next) {
+router.post('/', checkIfAdmin, async function createJob(
+  request,
+  response,
+  next
+) {
   try {
     validateSchema(request.body, newJobSchema);
 
@@ -28,7 +38,11 @@ router.post('/', async function createJob(request, response, next) {
   }
 });
 
-router.get('/:id', async function getJob(request, response, next) {
+router.get('/:id', checkIfLoggedIn, async function getJob(
+  request,
+  response,
+  next
+) {
   try {
     const job = await Job.get({ id: request.params.id });
     return response.json({ job });
@@ -37,8 +51,8 @@ router.get('/:id', async function getJob(request, response, next) {
   }
 });
 
-router.put('/:id', updateJob);
-router.patch('/:id', updateJob);
+router.put('/:id', checkIfAdmin, updateJob);
+router.patch('/:id', checkIfAdmin, updateJob);
 async function updateJob(request, response, next) {
   try {
     if (Object.keys(request.body).length === 0) {
@@ -53,7 +67,11 @@ async function updateJob(request, response, next) {
   }
 }
 
-router.delete('/:id', async function delJob(request, response, next) {
+router.delete('/:id', checkIfAdmin, async function delJob(
+  request,
+  response,
+  next
+) {
   try {
     const message = await Job.delete({ id: request.params.id });
     return response.json({ message });

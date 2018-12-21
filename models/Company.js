@@ -17,6 +17,7 @@ class Company {
   }
 
   static async many(params) {
+    if (params) delete params.token;
     const { query, values } = getMany('companies', params);
     const dbResponse = await db.query(query, values);
     return dbResponse.rows.map(row => new Company(row));
@@ -44,6 +45,7 @@ class Company {
   }
 
   static async update(params) {
+    if (params) delete params.token;
     const { handle, ...items } = params;
     // Since you can't update handle, this is omitted
     await uniqueConstraints(this, { name: items.name });
