@@ -115,7 +115,6 @@ describe('POST to /users/login', async () => {
     let response = await testApp
       .post('/users/login')
       .send({ username: 'test1', password: 'pwd' });
-    console.log(`In the test\n\n\n>>>`, response);
     expect(response.body).toHaveProperty('token');
   });
 

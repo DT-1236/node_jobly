@@ -1,11 +1,7 @@
 const router = require('express').Router();
 const User = require('../models/User');
 
-const {
-  checkIfLoggedIn,
-  checkIfLoggedInAsUser,
-  checkIfAdmin
-} = require('../middleware/auth');
+const { checkIfLoggedInAsUser } = require('../middleware/auth');
 
 const validateSchema = require('../middleware/schemaValidate');
 const newUserSchema = require('../schemas/newUserSchema.json');
