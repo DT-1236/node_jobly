@@ -3,7 +3,7 @@ process.env.NODE_ENV = 'test';
 const Company = require('../../models/Company');
 const db = require('../../db');
 
-beforeEach(async () => {
+beforeAll(async () => {
   await db.query(`DELETE FROM jobs`);
   await db.query(`DELETE FROM companies`);
   await db.query(
@@ -30,7 +30,6 @@ describe('The constructor works', async () => {
 describe('Test the many static method', async () => {
   it('should generate an array of all Company objects if there are no arguments', async () => {
     let result = await Company.many();
-
     expect(result.length).toEqual(3);
     expect(result.every(i => i instanceof Company)).toBeTruthy();
   });
@@ -148,12 +147,8 @@ describe('Test the delete class method', async () => {
   await Company.create({ handle: 'bravo', name: 'Bravo Charlie' });
 });
 
-afterEach(async () => {
+afterAll(async () => {
   await db.query(`DELETE FROM jobs`);
   await db.query(`DELETE FROM companies`);
-});
-afterAll(async () => {
-  // await db.query(`DELETE FROM jobs`);
-  // await db.query(`DELETE FROM companies`);
   db.end();
 });
