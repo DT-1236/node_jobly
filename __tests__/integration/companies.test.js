@@ -26,7 +26,9 @@ beforeAll(async () => {
 
 describe('GET to /companies', async () => {
   it('should return a json with a key of companies and value of all the companies if no input', async () => {
-    const response = await testApp.get('/companies').send({ token });
+    const response = await testApp
+      .get('/companies')
+      .set('Authorization', 'Bearer ' + token);
     expect(response.status).toEqual(200);
     expect(response.body).toHaveProperty('companies');
     expect(response.body.companies.length).toEqual(3);
@@ -42,7 +44,8 @@ describe('GET to /companies', async () => {
   it('should throw 400 if max_employees < min_employees', async () => {
     const response = await testApp
       .get('/companies')
-      .query({ max_employees: 1, min_employees: 2, token });
+      .query({ max_employees: 1, min_employees: 2 })
+      .set('Authorization', 'Bearer ' + token);
     expect(response.body.error).toHaveProperty('status', 400);
     expect(response.body.error).toHaveProperty(
       'message',
@@ -53,7 +56,8 @@ describe('GET to /companies', async () => {
   it('should filter appropriately by num_employees', async () => {
     const response = await testApp
       .get('/companies')
-      .query({ max_employees: 7, min_employees: 2, token });
+      .query({ max_employees: 7, min_employees: 2 })
+      .set('Authorization', 'Bearer ' + token);
     expect(response.status).toEqual(200);
     expect(response.body).toHaveProperty('companies');
     expect(response.body.companies.length).toEqual(1);
@@ -69,7 +73,8 @@ describe('GET to /companies', async () => {
   it('should return companies corresponding to query filters', async () => {
     let response = await testApp
       .get('/companies')
-      .query({ handle: 'bravo', token });
+      .query({ handle: 'bravo' })
+      .set('Authorization', 'Bearer ' + token);
     expect(response.status).toEqual(200);
     expect(response.body).toHaveProperty('companies');
     expect(response.body.companies.length).toEqual(1);
@@ -80,7 +85,10 @@ describe('GET to /companies', async () => {
       description: null,
       logo_url: null
     });
-    response = await testApp.get('/companies').query({ name: 'bravo', token });
+    response = await testApp
+      .get('/companies')
+      .query({ name: 'bravo' })
+      .set('Authorization', 'Bearer ' + token);
     expect(response.status).toEqual(200);
     expect(response.body).toHaveProperty('companies');
     expect(response.body.companies.length).toEqual(2);
@@ -96,7 +104,8 @@ describe('GET to /companies', async () => {
   it('returned companies value should be an empty list if there are no matches', async () => {
     const response = await testApp
       .get('/companies')
-      .query({ handle: 'garbage_handle', token });
+      .query({ handle: 'garbage_handle' })
+      .set('Authorization', 'Bearer ' + token);
     expect(response.status).toEqual(200);
     expect(response.body).toHaveProperty('companies');
     expect(response.body.companies.length).toEqual(0);
@@ -105,11 +114,13 @@ describe('GET to /companies', async () => {
 
 describe('POST to /companies', async () => {
   it('should return a json with a key of company and value of the newly created company', async () => {
-    const response = await testApp.post('/companies').send({
-      token: adminToken,
-      handle: 'test',
-      name: 'Test Company'
-    });
+    const response = await testApp
+      .post('/companies')
+      .send({
+        handle: 'test',
+        name: 'Test Company'
+      })
+      .set('Authorization', 'Bearer ' + adminToken);
     expect(response.status).toEqual(200);
     expect(response.body).toHaveProperty('company');
     expect(response.body.company).toHaveProperty('name', 'Test Company');
@@ -119,7 +130,9 @@ describe('POST to /companies', async () => {
 
 describe('GET to /companies/:handle', async () => {
   it('should return a JSON for a single company', async () => {
-    const response = await testApp.get('/companies/alpha').send({ token });
+    const response = await testApp
+      .get('/companies/alpha')
+      .set('Authorization', 'Bearer ' + token);
     expect(response.status).toEqual(200);
     expect(response.body).toHaveProperty('company');
     expect(response.body.company).toHaveProperty('name', 'Alpha Bravo');
@@ -129,7 +142,7 @@ describe('GET to /companies/:handle', async () => {
   it('should return a 404 for a missing handle', async () => {
     const response = await testApp
       .get('/companies/garbage_handle')
-      .send({ token });
+      .set('Authorization', 'Bearer ' + token);
     expect(response.status).toEqual(404);
   });
 });
@@ -138,7 +151,8 @@ describe('PATCH/PUT to /companies/:handle', async () => {
   it('Updates an existing company with new information', async () => {
     const response = await testApp
       .patch('/companies/alpha')
-      .send({ name: 'cake', num_employees: 20, token: adminToken });
+      .send({ name: 'cake', num_employees: 20 })
+      .set('Authorization', 'Bearer ' + adminToken);
     expect(response.body.company).toEqual({
       handle: 'alpha',
       name: 'cake',
@@ -148,13 +162,15 @@ describe('PATCH/PUT to /companies/:handle', async () => {
     });
     await testApp
       .patch('/companies/alpha')
-      .send({ name: 'Alpha Bravo', token: adminToken, num_employees: 1 });
+      .send({ name: 'Alpha Bravo', num_employees: 1 })
+      .set('Authorization', 'Bearer ' + adminToken);
   });
 
   it('should return a 404 for a missing handle', async () => {
     const response = await testApp
       .patch('/companies/garbage_handle')
-      .send({ name: 'cake', token: adminToken, num_employees: 20 });
+      .send({ name: 'cake', num_employees: 20 })
+      .set('Authorization', 'Bearer ' + adminToken);
     expect(response.status).toEqual(404);
   });
 });
@@ -163,14 +179,14 @@ describe('DELETE to /companies/:handle', async () => {
   it('should delete a company', async () => {
     let response = await testApp
       .delete('/companies/alpha')
-      .send({ token: adminToken });
+      .set('Authorization', 'Bearer ' + adminToken);
     expect(response.body).toEqual({ message: `Alpha Bravo (alpha) deleted` });
   });
 
   it('should return a 404 for a missing handle', async () => {
     const response = await testApp
       .delete('/companies/garbage_handle')
-      .send({ token: adminToken });
+      .set('Authorization', 'Bearer ' + adminToken);
     expect(response.status).toEqual(404);
   });
 });

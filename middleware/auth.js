@@ -6,8 +6,11 @@ err.status = 401;
 
 async function checkIfLoggedIn(request, response, next) {
   try {
-    let token = request.body.token || request.query.token;
-    if (!token || !jwt.verify(token, SECRET)) {
+    // let token = request.body.token || request.query.token;
+    // Remove Bearer prefix
+
+    let token = request.headers.authorization;
+    if (!token || !jwt.verify(token.slice(7), SECRET)) {
       throw err;
     }
     return next();
@@ -41,11 +44,12 @@ async function checkIfAdmin(request, response, next) {
 }
 
 async function getPayload(request) {
-  let token = request.body.token || request.query.token;
+  // Remove Bearer prefix
+  let token = request.headers.authorization;
   if (!token) {
     throw err;
   }
-  return await jwt.verify(token, SECRET);
+  return await jwt.verify(token.slice(7), SECRET);
 }
 
 module.exports = { checkIfLoggedIn, checkIfLoggedInAsUser, checkIfAdmin };

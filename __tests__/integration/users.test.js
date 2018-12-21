@@ -115,6 +115,7 @@ describe('POST to /users/login', async () => {
     let response = await testApp
       .post('/users/login')
       .send({ username: 'test1', password: 'pwd' });
+    console.log(`In the test\n\n\n>>>`, response);
     expect(response.body).toHaveProperty('token');
   });
 
@@ -145,7 +146,8 @@ describe('PATCH/PUT to /users/:username', async () => {
   it('Updates an existing user with new information', async () => {
     const response = await testApp
       .patch('/users/test1')
-      .send({ first_name: 'cake', last_name: 'cake', token: token });
+      .send({ first_name: 'cake', last_name: 'cake' })
+      .set('Authorization', 'Bearer ' + token);
     expect(response.body.user).toHaveProperty('first_name', 'cake');
     expect(response.body.user).toHaveProperty('last_name', 'cake');
     expect(response.body.user).toHaveProperty('username', 'test1');
@@ -154,7 +156,8 @@ describe('PATCH/PUT to /users/:username', async () => {
   it('returns a 409 when trying to update violating unique constraint', async () => {
     const error = await testApp
       .patch('/users/test1')
-      .send({ email: 'cake@cake2.com', token })
+      .send({ email: 'cake@cake2.com' })
+      .set('Authorization', 'Bearer ' + token)
       .catch(e => e);
     expect(error).toHaveProperty('status', 409);
   });
@@ -170,7 +173,9 @@ describe('PATCH/PUT to /users/:username', async () => {
 
 describe('DELETE to /users/:username', async () => {
   it('should delete a user', async () => {
-    let response = await testApp.delete('/users/test1').send({ token });
+    let response = await testApp
+      .delete('/users/test1')
+      .set('Authorization', 'Bearer ' + token);
     expect(response.body).toEqual({ message: `test1 deleted` });
   });
 
