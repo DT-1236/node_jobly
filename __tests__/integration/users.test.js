@@ -11,7 +11,7 @@ beforeAll(async () => {
   const pwd = await bcrypt.hash('pwd', 1);
   await db.query(
     `INSERT INTO users (username, password, first_name, last_name, email, photo_url, is_admin ) 
-    VALUES ('test1', $1, 'first1', 'last1', 'cake@cake.com', '', 'false'),
+    VALUES ('test1', $1, 'first1', 'last1', 'cake@cake1.com', '', 'false'),
     ('test2', $1, 'first2', 'last2', 'cake@cake2.com', '', 'false'),
     ('test3', $1, 'first2', 'last3', 'cake@cake3.com', '', 'false')`,
     [pwd]
@@ -46,6 +46,66 @@ describe('POST to /users', async () => {
     expect(response.body.user).toHaveProperty('username', 'testuser');
     expect(response.body.user).toHaveProperty('first_name', 'firsttest');
   });
+
+  // it('returns a 409 when trying to make an existing username/email', async () => {
+  //   let error = await testApp
+  //     .post('/users')
+  //     .send({
+  //       username: 'test1',
+  //       password: 'pwd',
+  //       first_name: 'firsttest',
+  //       last_name: 'lasttest',
+  //       email: 'unique@email.com',
+  //       photo_url: 'http://www.cake.com/cake.jpg',
+  //       is_admin: 'true'
+  //     })
+  //     .catch(e => e);
+  //   expect(error).toHaveProperty('status', 409);
+  //   // console.log(`First message\n\n\n>>>`, error);
+  //   expect(error).toHaveProperty('message');
+  //   error = await testApp
+  //     .post('/users')
+  //     .send({
+  //       username: 'uniqueusername',
+  //       password: 'pwd',
+  //       first_name: 'firsttest',
+  //       last_name: 'lasttest',
+  //       email: 'cake@cake1.com',
+  //       photo_url: 'http://www.cake.com/cake.jpg',
+  //       is_admin: 'true'
+  //     })
+  //     .catch(e => e);
+  //   expect(error).toHaveProperty('status', 409);
+  //   console.log(`Second message\n\n\n>>>`, error.message);
+
+  //   expect(error).toHaveProperty('message');
+  // });
+
+  it('should return a 400 error when given bad/incomplete information', async () => {
+    let error = await testApp
+      .post('/users')
+      .send({
+        username: 'testuser2',
+        password: 'pwd',
+        first_name: 'firsttest',
+        last_name: 'lasttest',
+        email: 'notanemail',
+        photo_url: 'notauri',
+        is_admin: 'true'
+      })
+      .catch(e => e);
+    expect(error).toHaveProperty('status', 400);
+    error = await testApp
+      .post('/users')
+      .send({
+        username: 'testuser2',
+        password: 'pwd',
+        last_name: 'lasttest',
+        is_admin: 'true'
+      })
+      .catch(e => e);
+    expect(error).toHaveProperty('status', 400);
+  });
 });
 
 describe('GET to /users/:handle', async () => {
@@ -73,10 +133,19 @@ describe('PATCH/PUT to /users/:username', async () => {
     expect(response.body.user).toHaveProperty('username', 'test1');
   });
 
+  it('returns a 409 when trying to update violating unique constraint', async () => {
+    const error = await testApp
+      .patch('/users/test2')
+      .send({ email: 'cake@cake1.com' })
+      .catch(e => e);
+    expect(error).toHaveProperty('status', 409);
+  });
+
   it('should return a 404 for a missing username', async () => {
     const response = await testApp
       .patch('/users/garbage_username')
       .send({ username: 'garbage_username' });
+
     expect(response.status).toEqual(404);
   });
 });

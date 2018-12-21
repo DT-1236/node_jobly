@@ -4,37 +4,64 @@
   "$id": "http://example.com/root.json",
   "type": "object",
   "title": "The Root Schema",
-  "required": [],
+  "required": ["username"],
   "properties": {
-    "name": {
-      "$id": "#/properties/name",
+    "username": {
+      "$id": "#/properties/username",
       "type": "string",
-      "title": "The Name Schema",
+      "title": "The Username Schema",
       "default": "",
-      "examples": ["alpha"],
+      "examples": ["testuser"],
       "pattern": "^(.*)$"
     },
-    "num_employees": {
-      "$id": "#/properties/num_employees",
-      "type": "integer",
-      "title": "The Num_employees Schema",
-      "default": 0,
-      "examples": [2]
-    },
-    "description": {
-      "$id": "#/properties/description",
+    "password": {
+      "$id": "#/properties/password",
       "type": "string",
-      "title": "The Description Schema",
+      "title": "The Password Schema",
       "default": "",
-      "examples": ["blah"],
+      "examples": ["pwd"],
       "pattern": "^(.*)$"
     },
-    "logo_url": {
-      "$id": "#/properties/logo_url",
+    "first_name": {
+      "$id": "#/properties/first_name",
       "type": "string",
-      "title": "The Logo_url Schema",
+      "title": "The First_name Schema",
       "default": "",
-      "examples": ["blah.jpg"],
+      "examples": ["firsttest"],
+      "pattern": "^(.*)$"
+    },
+    "last_name": {
+      "$id": "#/properties/last_name",
+      "type": "string",
+      "title": "The Last_name Schema",
+      "default": "",
+      "examples": ["lasttest"],
+      "pattern": "^(.*)$"
+    },
+    "email": {
+      "$id": "#/properties/email",
+      "type": "string",
+      "title": "The Email Schema",
+      "default": "",
+      "format": "email",
+      "examples": ["test@email.com"],
+      "pattern": "^(.*)$"
+    },
+    "photo_url": {
+      "$id": "#/properties/photo_url",
+      "type": "string",
+      "title": "The Photo_url Schema",
+      "format": "uri",
+      "default": "www.google.com",
+      "examples": [""],
+      "pattern": "^(.*)$"
+    },
+    "is_admin": {
+      "$id": "#/properties/is_admin",
+      "type": "boolean",
+      "title": "The Is_admin Schema",
+      "default": "false",
+      "examples": ["true"],
       "pattern": "^(.*)$"
     }
   }

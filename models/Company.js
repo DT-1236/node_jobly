@@ -2,7 +2,7 @@ const db = require('../db');
 const partialUpdate = require('../helpers/partialUpdate');
 const getMany = require('../helpers/generateGetManyQuery');
 const Job = require('./Job');
-// const uniqueConstraints = require('../helpers/uniqueConstraints');
+const uniqueConstraints = require('../helpers/uniqueConstraints');
 
 class Company {
   // All methods take an object as their only argument
@@ -35,7 +35,7 @@ class Company {
   }
 
   static async create({ handle, name }) {
-    // await uniqueConstraints(this, { handle, name });
+    await uniqueConstraints(this, { handle, name });
     const dbResponse = await db.query(
       `INSERT INTO companies (handle, name) VALUES ($1, $2) RETURNING *`,
       [handle, name]
@@ -45,7 +45,8 @@ class Company {
 
   static async update(params) {
     const { handle, ...items } = params;
-    // await uniqueConstraints(this, { name: items.name });
+    // Since you can't update handle, this is omitted
+    await uniqueConstraints(this, { name: items.name });
     const { query, values } = partialUpdate(
       'companies',
       items,

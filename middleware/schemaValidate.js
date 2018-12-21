@@ -4,13 +4,11 @@ function validateSchema(form, schema) {
   // Apparently integer values in query strings aren't coerced into int
   // So max_employees is going in as '1' instead of 1
   parseValuesIntoFloat(form);
-  // parseValuesIntoBoolean(form);
+  parseValuesIntoBoolean(form);
   const result = validate(form, schema);
   if (!result.valid) {
     let message = result.errors.map(error => error.stack);
     let error = new Error(message.join('\n'));
-    console.log(`We are throwing\n\n\n\n`, message);
-    console.log(`Checking form contents\n\n\n>>>`, form);
 
     error.status = 400;
     throw error;

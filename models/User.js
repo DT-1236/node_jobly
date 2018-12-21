@@ -1,10 +1,11 @@
 const db = require('../db');
 const partialUpdate = require('../helpers/partialUpdate');
-const getMany = require('../helpers/generateGetManyQuery');
-const Job = require('./Job');
 const bcrypt = require('bcrypt');
+const getMany = require('../helpers/generateGetManyQuery');
 
-// const uniqueConstraints = require('../helpers/uniqueConstraints');
+const { WORK_FACTOR } = require('../config');
+
+const uniqueConstraints = require('../helpers/uniqueConstraints');
 
 class User {
   // All methods take an object as their only argument
@@ -28,12 +29,17 @@ class User {
   }
 
   static async many(params) {
-    // const { query, values } = getMany('users', params);
-    const dbResponse = await db.query(
-      `SELECT username, first_name, last_name, email FROM users`
-    );
+    const { query, values } = getMany('users', params);
+    const dbResponse = await db.query(query, values);
     return dbResponse.rows.map(row => new User(row));
   }
+
+  // static async many() {
+  //   const dbResponse = await db.query(
+  //     `SELECT username, first_name, last_name, email FROM users`
+  //   );
+  //   return dbResponse.rows.map(row => new User(row));
+  // }
 
   static async get({ username }) {
     const dbResponse = await db.query(`SELECT * FROM users WHERE username=$1`, [
@@ -44,20 +50,22 @@ class User {
     return new User(response);
   }
 
-  static async create({
-    username,
-    password,
-    first_name,
-    last_name,
-    email,
-    is_admin,
-    photo_url
-  }) {
+  static async create(params) {
+    const {
+      username,
+      password,
+      first_name,
+      last_name,
+      email,
+      is_admin,
+      photo_url
+    } = params;
+    // await uniqueConstraints(this, params);
     const dbResponse = await db.query(
       `INSERT INTO users (username, password, first_name, last_name, email, photo_url, is_admin) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
       [
         username,
-        await bcrypt.hash(password, 12),
+        await bcrypt.hash(password, WORK_FACTOR),
         first_name,
         last_name,
         email,
@@ -109,6 +117,6 @@ function ifEmpty404(dbResponse) {
     throw error;
   }
 }
-User.uniqueAttributes = new Set(['username', 'name']);
+User.uniqueAttributes = new Set(['username', 'email']);
 
 module.exports = User;

@@ -58,12 +58,6 @@ describe('Test the get static method', async () => {
     const error = await Company.get({ handle: 'garbage_handle' }).catch(e => e);
     expect(error).toBeInstanceOf(Error);
     expect(error).toHaveProperty('status', 404);
-    // await expect(
-    //   Company.get({ handle: 'garbage_handle' })
-    // ).rejects.toBeInstanceOf(Error);
-    // await expect(
-    //   Company.get({ handle: 'garbage_handle' })
-    // ).rejects.toHaveProperty('status', 404);
   });
 });
 
@@ -72,12 +66,6 @@ describe('Test the create static method', async () => {
     const error = await Company.get({ handle: 'tcompany' }).catch(e => e);
     expect(error).toBeInstanceOf(Error);
     expect(error).toHaveProperty('message');
-    // await expect(Company.get({ handle: 'tcompany' })).rejects.toBeInstanceOf(
-    //   Error
-    // );
-    // await expect(Company.get({ handle: 'tcompany' })).rejects.toHaveProperty(
-    //   'message'
-    // );
     const testCompany = await Company.create({
       handle: 'tcompany',
       name: 'Test Company'
@@ -125,6 +113,22 @@ describe('Test the update instance method', async () => {
       description: null
     });
   });
+
+  it('should throw a 409 if trying to update to a used name', async () => {
+    const alpha = await Company.get({ handle: 'alpha' });
+    expect(alpha).toHaveProperty('name', 'Alpha Bravo');
+    expect(alpha).toHaveProperty('num_employees', null);
+    const error = await alpha
+      .update({
+        name: 'Echo Foxtrot'
+      })
+      .catch(e => e);
+    expect(error).toHaveProperty('status', 409);
+    expect(error).toHaveProperty(
+      'message',
+      `An existing record contains 'Echo Foxtrot' already`
+    );
+  });
 });
 
 describe('Test the delete instance method', async () => {
@@ -134,7 +138,6 @@ describe('Test the delete instance method', async () => {
       `${alpha.name} (${alpha.handle}) deleted`
     );
   });
-  await Company.create({ handle: 'alpha', name: 'Alpha Bravo' });
 });
 
 describe('Test the delete class method', async () => {
@@ -144,7 +147,6 @@ describe('Test the delete class method', async () => {
       `${bravo.name} (${bravo.handle}) deleted`
     );
   });
-  await Company.create({ handle: 'bravo', name: 'Bravo Charlie' });
 });
 
 afterAll(async () => {

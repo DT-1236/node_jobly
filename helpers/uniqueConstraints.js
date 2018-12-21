@@ -3,9 +3,8 @@ async function checkUniqueConstraints(model, form) {
     if (model.uniqueAttributes.has(attr)) {
       let tempObj = {};
       tempObj[attr] = form[attr];
-      let dbQuery = await model.many(tempObj);
+      let dbQuery = await model.many(tempObj).catch(e => e);
       if (dbQuery.length > 0) {
-        // console.log(`\n\n\n\n\n\n ${attr}, ${form[attr]} \n\n\n\n\n`);
         let err = new Error(
           `An existing record contains '${form[attr]}' already`
         );

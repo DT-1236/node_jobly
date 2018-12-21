@@ -4,14 +4,7 @@
   "$id": "http://example.com/root.json",
   "type": "object",
   "title": "The Root Schema",
-  "required": [
-    "username",
-    "password",
-    "first_name",
-    "last_name",
-    "email",
-    "is_admin"
-  ],
+  "required": [],
   "properties": {
     "username": {
       "$id": "#/properties/username",
@@ -65,10 +58,10 @@
     },
     "is_admin": {
       "$id": "#/properties/is_admin",
-      "type": "string",
+      "type": "boolean",
       "title": "The Is_admin Schema",
-      "default": "",
-      "examples": [true],
+      "default": "false",
+      "examples": ["true"],
       "pattern": "^(.*)$"
     }
   }

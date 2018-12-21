@@ -40,7 +40,10 @@ app.use(function(err, req, res, next) {
     err = new APIError(err.message, err.status);
   }
   if (err.status === 500) {
-    console.error(`Checking error in handler\n\n>>>>>`, err);
+    console.error(
+      `NEW ERROR IN ERROR HANDLER. Checking error in handler\n\n>>>>>`,
+      err
+    );
   }
   return res.status(err.status).json(err);
 });

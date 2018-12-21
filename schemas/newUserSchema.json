@@ -65,7 +65,7 @@
     },
     "is_admin": {
       "$id": "#/properties/is_admin",
-      "type": "string",
+      "type": "boolean",
       "title": "The Is_admin Schema",
       "default": "false",
       "examples": ["true"],
