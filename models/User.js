@@ -5,7 +5,7 @@ const getMany = require('../helpers/generateGetManyQuery');
 
 const { WORK_FACTOR } = require('../config');
 
-const uniqueConstraints = require('../helpers/uniqueConstraints');
+// const uniqueConstraints = require('../helpers/uniqueConstraints');
 
 class User {
   // All methods take an object as their only argument

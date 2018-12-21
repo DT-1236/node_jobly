@@ -4,8 +4,9 @@ const User = require('../models/User');
 const validateSchema = require('../middleware/schemaValidate');
 const newUserSchema = require('../schemas/newUserSchema.json');
 const getAllSchema = require('../schemas/getAllUsersSchema.json');
-
 const updateUserSchema = require('../schemas/updateUserSchema.json');
+
+const uniqueConstraints = require('../helpers/uniqueConstraints');
 
 router.get('/', async function getUsers(request, response, next) {
   try {
@@ -21,6 +22,7 @@ router.get('/', async function getUsers(request, response, next) {
 router.post('/', async function createUser(request, response, next) {
   try {
     validateSchema(request.body, newUserSchema);
+    uniqueConstraints(User, request.body);
     const user = await User.create(request.body);
     return response.json({ user });
   } catch (error) {
@@ -47,6 +49,7 @@ async function updateUser(request, response, next) {
     const { ...body } = request.body;
     body.username = request.params.username;
     validateSchema(body, updateUserSchema);
+    uniqueConstraints(User, body);
     const user = await User.update(body);
     return response.json({ user });
   } catch (error) {

@@ -47,39 +47,39 @@ describe('POST to /users', async () => {
     expect(response.body.user).toHaveProperty('first_name', 'firsttest');
   });
 
-  // it('returns a 409 when trying to make an existing username/email', async () => {
-  //   let error = await testApp
-  //     .post('/users')
-  //     .send({
-  //       username: 'test1',
-  //       password: 'pwd',
-  //       first_name: 'firsttest',
-  //       last_name: 'lasttest',
-  //       email: 'unique@email.com',
-  //       photo_url: 'http://www.cake.com/cake.jpg',
-  //       is_admin: 'true'
-  //     })
-  //     .catch(e => e);
-  //   expect(error).toHaveProperty('status', 409);
-  //   // console.log(`First message\n\n\n>>>`, error);
-  //   expect(error).toHaveProperty('message');
-  //   error = await testApp
-  //     .post('/users')
-  //     .send({
-  //       username: 'uniqueusername',
-  //       password: 'pwd',
-  //       first_name: 'firsttest',
-  //       last_name: 'lasttest',
-  //       email: 'cake@cake1.com',
-  //       photo_url: 'http://www.cake.com/cake.jpg',
-  //       is_admin: 'true'
-  //     })
-  //     .catch(e => e);
-  //   expect(error).toHaveProperty('status', 409);
-  //   console.log(`Second message\n\n\n>>>`, error.message);
-
-  //   expect(error).toHaveProperty('message');
-  // });
+  it('returns a 409 when trying to make an existing username/email', async () => {
+    let response = await testApp.post('/users').send({
+      username: 'test1',
+      password: 'pwd',
+      first_name: 'firsttest',
+      last_name: 'lasttest',
+      email: 'unique@email.com',
+      photo_url: 'http://www.cake.com/cake.jpg',
+      is_admin: 'true'
+    });
+    // Interestingly, this doesn't require the catch statement...
+    let error = response.body.error;
+    expect(error).toHaveProperty('status', 409);
+    expect(error).toHaveProperty(
+      'message',
+      `A previous record already has one of those values`
+    );
+    response = await testApp.post('/users').send({
+      username: 'uniqueusername',
+      password: 'pwd',
+      first_name: 'firsttest',
+      last_name: 'lasttest',
+      email: 'cake@cake1.com',
+      photo_url: 'http://www.cake.com/cake.jpg',
+      is_admin: 'true'
+    });
+    error = response.body.error;
+    expect(error).toHaveProperty('status', 409);
+    expect(error).toHaveProperty(
+      'message',
+      `A previous record already has one of those values`
+    );
+  });
 
   it('should return a 400 error when given bad/incomplete information', async () => {
     let error = await testApp
