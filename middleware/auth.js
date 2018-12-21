@@ -18,11 +18,7 @@ async function checkIfLoggedIn(request, response, next) {
 
 async function checkIfLoggedInAsUser(request, response, next) {
   try {
-    let token = request.body.token || request.query.token;
-    if (!token) {
-      throw err;
-    }
-    let payload = await jwt.verify(token, SECRET);
+    let payload = await getPayload(request);
     if (payload.username !== request.params.username) {
       throw err;
     }
@@ -34,11 +30,7 @@ async function checkIfLoggedInAsUser(request, response, next) {
 
 async function checkIfAdmin(request, response, next) {
   try {
-    let token = request.body.token || request.query.token;
-    if (!token) {
-      throw err;
-    }
-    let payload = await jwt.verify(token, SECRET);
+    let payload = await getPayload(request);
     if (!payload.is_admin) {
       throw err;
     }
@@ -46,6 +38,14 @@ async function checkIfAdmin(request, response, next) {
   } catch (error) {
     return next(error);
   }
+}
+
+async function getPayload(request) {
+  let token = request.body.token || request.query.token;
+  if (!token) {
+    throw err;
+  }
+  return await jwt.verify(token, SECRET);
 }
 
 module.exports = { checkIfLoggedIn, checkIfLoggedInAsUser, checkIfAdmin };
